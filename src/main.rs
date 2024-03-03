@@ -15,6 +15,8 @@ async fn hello() -> impl web::Responder {
 async fn images(pool: web::types::State<Pool>, req: web::HttpRequest) -> web::HttpResponse {
     let client = pool.get().await.unwrap();
 
+	// TODO: etag should be unique among all the URLs/tables. Otherwise, two resources
+	// with similar fields will generate the same ETag leading to bugs in caching
     let images_etag_statement = client
         .prepare_cached("SELECT md5(string_agg(id || name, '')) as etag FROM images")
         .await
