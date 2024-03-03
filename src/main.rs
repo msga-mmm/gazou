@@ -21,7 +21,7 @@ async fn images(pool: web::types::State<Pool>, req: web::HttpRequest) -> web::Ht
         .unwrap();
 
     let headers = req.headers();
-    let request_etag = headers.get("ETag");
+    let request_etag = headers.get("If-None-Match");
 
     let rows = client.query(&images_etag_statement, &[]).await.unwrap();
     let response_etag = rows.get(0);
