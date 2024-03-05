@@ -3,7 +3,7 @@ use deadpool_postgres::{
 };
 use ntex::{
     http::StatusCode,
-    web::{self, Responder},
+    web::{self, middleware, Responder},
 };
 #[web::get("/")]
 
@@ -76,6 +76,12 @@ async fn manual_hello() -> impl web::Responder {
 }
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
+	// TODO: work on debug mode
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "info");
+    }
+    env_logger::init();
+
     let mut cfg = Config::new();
     cfg.host = Some("localhost".to_string());
     cfg.dbname = Some("postgres".to_string());
@@ -91,6 +97,8 @@ async fn main() -> std::io::Result<()> {
 
     web::HttpServer::new(move || {
         web::App::new()
+            // enable logger
+			.wrap(middleware::Logger::default())
             .state(pool.clone())
             .service(hello)
             .service(echo)
