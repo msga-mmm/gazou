@@ -1,0 +1,16 @@
+[tasks.format]
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--all-features", "--", "-D", "clippy::pedantic", "-D", "warnings"]
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["clean"]
