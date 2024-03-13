@@ -6,14 +6,12 @@ use deadpool_postgres::{
     RecyclingMethod,
     Runtime,
 };
-use ntex::{
-    web::{
-        self,
-        middleware,
-    },
+use ntex::web::{
+    self,
+    middleware,
 };
-#[web::get("/")]
 
+#[web::get("/")]
 async fn hello() -> impl web::Responder {
     web::HttpResponse::Ok().body("Hello world!")
 }
@@ -88,6 +86,7 @@ async fn echo(req_body: String) -> impl web::Responder {
 async fn manual_hello() -> impl web::Responder {
     web::HttpResponse::Ok().body("Hey there!")
 }
+
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
     // TODO: work on debug mode
