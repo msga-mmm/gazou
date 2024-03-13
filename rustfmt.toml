@@ -1,0 +1,40 @@
+# Reference:
+# https://rust-lang.github.io/rustfmt/?version=master
+
+### STABLE SETTINGS ###
+
+max_width=80
+newline_style = "Unix"
+use_field_init_shorthand = true
+
+### UNSTABLE SETTINGS ###
+
+unstable_features = true
+
+# comments settings
+
+doc_comment_code_block_width = 80
+format_code_in_doc_comments = true
+normalize_comments = true
+normalize_doc_attributes = true
+wrap_comments = true
+
+# imports settings
+
+group_imports = "StdExternalCrate"
+imports_granularity = "Crate"
+imports_layout = "Vertical"
+
+# general settings
+
+condense_wildcard_suffixes = true
+format_macro_matchers = true
+force_multiline_blocks = true
+format_strings = true
+reorder_impl_items = true
+trailing_semicolon = true
+
+# checks
+
+error_on_line_overflow = true
+error_on_unformatted = true

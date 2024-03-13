@@ -1,9 +1,19 @@
 use deadpool_postgres::{
-    tokio_postgres::NoTls, Config, Manager, ManagerConfig, Pool, RecyclingMethod, Runtime,
+    tokio_postgres::NoTls,
+    Config,
+    Manager,
+    ManagerConfig,
+    Pool,
+    RecyclingMethod,
+    Runtime,
 };
 use ntex::{
     http::StatusCode,
-    web::{self, middleware, Responder},
+    web::{
+        self,
+        middleware,
+        Responder,
+    },
 };
 #[web::get("/")]
 
@@ -12,13 +22,19 @@ async fn hello() -> impl web::Responder {
 }
 
 #[web::get("/images")]
-async fn images(pool: web::types::State<Pool>, req: web::HttpRequest) -> web::HttpResponse {
+async fn images(
+    pool: web::types::State<Pool>,
+    req: web::HttpRequest,
+) -> web::HttpResponse {
     let client = pool.get().await.unwrap();
 
-	// TODO: etag should be unique among all the URLs/tables. Otherwise, two resources
-	// with similar fields will generate the same ETag leading to bugs in caching
+    // TODO: etag should be unique among all the URLs/tables. Otherwise, two
+    // resources with similar fields will generate the same ETag leading to
+    // bugs in caching
     let images_etag_statement = client
-        .prepare_cached("SELECT md5(string_agg(id || name, '')) as etag FROM images")
+        .prepare_cached(
+            "SELECT md5(string_agg(id || name, '')) as etag FROM images",
+        )
         .await
         .unwrap();
 
@@ -28,10 +44,11 @@ async fn images(pool: web::types::State<Pool>, req: web::HttpRequest) -> web::Ht
     let rows = client.query(&images_etag_statement, &[]).await.unwrap();
     let response_etag = rows.get(0);
 
-	// TODO: move logic into middleware
+    // TODO: move logic into middleware
     if let Some(request_etag) = request_etag {
         if let Some(response_etag) = response_etag {
-            let request_etag: String = request_etag.to_str().unwrap_or("").to_string();
+            let request_etag: String =
+                request_etag.to_str().unwrap_or("").to_string();
             let response_etag: String = response_etag.get(0);
 
             if request_etag == response_etag {
@@ -76,7 +93,7 @@ async fn manual_hello() -> impl web::Responder {
 }
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
-	// TODO: work on debug mode
+    // TODO: work on debug mode
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "info");
     }
@@ -98,7 +115,7 @@ async fn main() -> std::io::Result<()> {
     web::HttpServer::new(move || {
         web::App::new()
             // enable logger
-			.wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::default())
             .state(pool.clone())
             .service(hello)
             .service(echo)
