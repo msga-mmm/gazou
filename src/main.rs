@@ -21,7 +21,14 @@ async fn images(
     pool: web::types::State<Pool>,
     req: web::HttpRequest,
 ) -> web::HttpResponse {
-    let client = pool.get().await.unwrap();
+    let client = match pool.get().await {
+        Ok(client) => client,
+        Err(pool_error) => {
+            log::error!("failed to connect to the database:\n{}", pool_error);
+            return web::HttpResponse::InternalServerError()
+                .body("failed to connect to the database.");
+        }
+    };
 
     // TODO: etag should be unique among all the URLs/tables. Otherwise, two
     // resources with similar fields will generate the same ETag leading to
@@ -106,7 +113,11 @@ async fn main() -> std::io::Result<()> {
     let pool = cfg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
 
     // line used to check the connection was successful
-    let _client = pool.get().await.unwrap();
+    let client = pool.get().await;
+
+    if let Some(pool_error) = client.err() {
+        log::error!("failed to connect to the database:\n{}", pool_error);
+    }
 
     web::HttpServer::new(move || {
         web::App::new()
