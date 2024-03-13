@@ -1,0 +1,8 @@
+# The default clippy value for this is 8 bytes, which is chosen to reduce
+# portability problems between 32 and 64-bit.
+#
+# 16 bytes is the number of bytes that fits into two 64-bit CPU registers.
+#
+# Reference:
+# https://rust-lang.github.io/rust-clippy/master/#trivially_copy_pass_by_ref
+trivial-copy-size-limit = 16

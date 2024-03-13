@@ -1,18 +1,15 @@
 use deadpool_postgres::{
     tokio_postgres::NoTls,
     Config,
-    Manager,
     ManagerConfig,
     Pool,
     RecyclingMethod,
     Runtime,
 };
 use ntex::{
-    http::StatusCode,
     web::{
         self,
         middleware,
-        Responder,
     },
 };
 #[web::get("/")]
@@ -42,7 +39,7 @@ async fn images(
     let request_etag = headers.get("If-None-Match");
 
     let rows = client.query(&images_etag_statement, &[]).await.unwrap();
-    let response_etag = rows.get(0);
+    let response_etag = rows.first();
 
     // TODO: move logic into middleware
     if let Some(request_etag) = request_etag {
@@ -110,7 +107,7 @@ async fn main() -> std::io::Result<()> {
     let pool = cfg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
 
     // line used to check the connection was successful
-    let mut client = pool.get().await.unwrap();
+    let _client = pool.get().await.unwrap();
 
     web::HttpServer::new(move || {
         web::App::new()
