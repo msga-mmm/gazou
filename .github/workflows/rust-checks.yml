@@ -1,0 +1,58 @@
+name: Rust checks
+
+on:
+  pull_request:
+    paths:
+      - "**/*.rs"
+      - "**/Cargo.lock"
+      - "**/Cargo.toml"
+      - "rust-toolchain.toml"
+      - "rustfmt.toml"
+      - "clippy.toml"
+  push:
+    paths:
+      - "**/*.rs"
+      - "**/Cargo.lock"
+      - "**/Cargo.toml"
+      - "rust-toolchain.toml"
+      - "rustfmt.toml"
+      - "clippy.toml"
+
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    permissions:
+      # checks permissions to mark a pull request valid if the checks are
+      # successful
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+            profile: minimal
+            toolchain: nightly
+            components: clippy
+            override: true
+      - uses: actions-rs/clippy-check@v1
+        with:
+          # token not needed as `permissions` field is defined but added as it
+          # is a mandatory argument
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features -- -D clippy::pedantic -D warnings
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          components: rustfmt
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
